@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Obligatorisk_Oppgave_1
 {
-    public class Kurs
+    public class Kurs           //Modellerer ett kurs. Har operasjoner for å melde på og av studenter, sjekke ledige plasser, og printe ut kursinformasjon.
     {
         public string KursKode { get; set; } = string.Empty;
         public string KursNavn { get; set; } = string.Empty;

@@ -5,9 +5,9 @@ using System;
 
 namespace Obligatorisk_Oppgave_1
 {
-    class Program
+    class Program                           //meny viser selv etter valg er tatt. Og går ikke å melde på student til kurs, eller søke etter bok. Må fikse det.
     {
-        static void Main(string[] args)
+        static void Main(string[] args)     //hva betyr args?
         {
             Bibliotek bibliotek = new Bibliotek();
             KursSystem kursSystem = new KursSystem();
@@ -20,16 +20,16 @@ namespace Obligatorisk_Oppgave_1
             {
                 meny.VisMeny();
 
-                string valg = Console.ReadLine();
+                string? valg = Console.ReadLine();      //hvorfor ? etter string?
 
                 switch (valg)
                 {
                     case "1":
-                        Console.WriteLine("Opprett kurs...");
+                        Console.WriteLine("Opprett kurs");
                         break;
 
                     case "2":
-                        Console.WriteLine("Meld student til kurs...");
+                        Console.WriteLine("Meld student til kurs");
                         break;
 
                     case "3":
@@ -37,22 +37,22 @@ namespace Obligatorisk_Oppgave_1
                         break;
 
                     case "5":
-                        Console.WriteLine("Søk bok...");
+                        Console.WriteLine("Søk bok");
                         break;
 
                     case "6":
-                        Console.WriteLine("Lån bok...");
+                        Console.WriteLine("Lån bok");
                         break;
 
                     case "7":
-                        Console.WriteLine("Returner bok...");
+                        Console.WriteLine("Returner bok");
                         break;
 
                     case "8":
-                        Console.WriteLine("Registrer bok...");
+                        Console.WriteLine("Registrer bok");
                         break;
 
-                    case "0":
+                    case "0":                       
                         kjører = false;
                         break;
                 }

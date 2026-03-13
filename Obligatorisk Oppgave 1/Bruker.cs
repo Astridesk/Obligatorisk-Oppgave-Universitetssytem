@@ -12,7 +12,7 @@ namespace Obligatorisk_Oppgave_1
 
         //legg til passord?
 
-        //konstruktør med paraametere
+        //konstruktør med parametere
         public Bruker(string navn, string epost)
         {
             Navn = navn;
