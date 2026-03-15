@@ -26,7 +26,11 @@ namespace Obligatorisk_Oppgave_1
 
         public void LånUtBok(Bok bok, Bruker bruker)       //Liten bok er et objekt?
         {
-            if (bok.Ledig())
+            if (!bok.Ledig())
+            {
+                Console.WriteLine("Boken er ikke tilgjengelig for utlån.");
+            }
+            else
             {
                 bok.LånUt();
 
@@ -34,21 +38,17 @@ namespace Obligatorisk_Oppgave_1
 
                 Console.WriteLine("Boken er lånt ut.");
             }
-            else
-            {
-                Console.WriteLine("Boken er ikke tilgjengelig for utlån.");
-            }
 
 
         }
 
-        public void LeverInnBok(Bok bok)
+        public void LeverInnBok(Bok bok, BibliotekLån biblioteklån)
         {
-            foreach (var biblioteklån in LånListe)
+            foreach (var lån in LånListe)
             {
-                if (biblioteklån.Bok == bok && biblioteklån.ReturneringsDato == null)
+                if (lån.Bok == bok && lån.ReturneringsDato == null)
                 {
-                    biblioteklån.ReturneringsDato = DateTime.Now;
+                    lån.ReturneringsDato = DateTime.Now;
                     bok.Returner();
                     Console.WriteLine("Boken er levert inn.");
                     return;
@@ -63,19 +63,11 @@ namespace Obligatorisk_Oppgave_1
             {
                 if (biblioteklån.ReturneringsDato == null)
                 {
-                    Console.WriteLine($"Bok: {biblioteklån.Bok.Tittel}, Lånt av: {biblioteklån.Bruker.Navn}, Lånedato: {biblioteklån.LåneDato}");
+                    Console.WriteLine($"Bok: {biblioteklån.Bok.Tittel}, Lånt av: {biblioteklån.bruker.Navn}, Lånedato: {biblioteklån.LåneDato}");
                 }
             }
         }
-        public void VisHistorikk()
-        {
-            Console.WriteLine("Lånehistorikk:");
-            foreach (var biblioteklån in LånListe)
-            {
-                //Sjekk denne
-                Console.WriteLine($"Bok: {biblioteklån.Bok.Tittel}, Lånt av: {biblioteklån.Bruker.Navn}, Lånedato: {biblioteklån.LåneDato}, " +
-                    $"Returnert: {(biblioteklån.ReturneringsDato.HasValue ? biblioteklån.ReturneringsDato.Value.ToString() : "Ikke returnert")}");
-            }
-        }
+        
+        
     }
 }
