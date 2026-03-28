@@ -13,7 +13,7 @@ namespace Obligatorisk_Oppgave_1
         public int Studiepoeng { get; set; }
         public int MaksAntallPlasser { get; set; }
 
-        public List<Student> Studenter { get; set; }
+        public List<Student> Studenter { get; set; } = new();
        
         
 
@@ -24,7 +24,7 @@ namespace Obligatorisk_Oppgave_1
             Studiepoeng = studiepoeng;
             MaksAntallPlasser = maksAntallPlasser;      
 
-            Studenter = new List<Student>();
+           // Studenter = new List<Student>();
 
         }
 

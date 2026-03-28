@@ -10,8 +10,7 @@ namespace Obligatorisk_Oppgave_1
     public class KursService        
     {
         
-
-        public static void OpprettKurs(List<Kurs> alleKurs)         //fjern?
+        public static void OpprettKurs(List<Kurs> kurs)        
         {
             Console.Write("Kode: ");
             string kurskode = Console.ReadLine();
@@ -25,10 +24,11 @@ namespace Obligatorisk_Oppgave_1
             Console.Write("Maks plasser: ");
             int maksAntallPlasser = int.Parse(Console.ReadLine());
 
-            alleKurs.Add(new Kurs(kurskode, kursnavn, studiepoeng, maksAntallPlasser));
+            kurs.Add(new Kurs(kurskode, kursnavn, studiepoeng, maksAntallPlasser));
         }
 
        
+
 
         public bool MeldPåEllerAvStudent(Student student, Kurs kurs, bool meldPå)
         {

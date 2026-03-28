@@ -11,12 +11,15 @@ public class Program
 
     //legg inn alle lister som brukes av hele programmet her:
     static List<Kurs> KursListe = new List<Kurs>();   
-    static List<Student> Studenter = Student.DefaultStudent();     //må ha en måte å legge til studenter på, og en måte å se hvilke studenter som er oppmeldt på kurs   
+    static List<Student> Studenter = new();    //må ha en måte å legge til studenter på, og en måte å se hvilke studenter som er oppmeldt på kurs     
     static Bibliotek bibliotek = new Bibliotek();
+    static List<Bok> Bøker = Bok.DefaultBøker();   
 
 
     private static void Main(string[] args)
     {
+        Studenter.Add(new Student("Ola", "ola@epost", 1));
+
 
         Meny meny = new Meny();
 
@@ -31,35 +34,41 @@ public class Program
             switch (valg)
             {
                 case "1":
-                    KursService.OpprettKurs(KursListe);
+                    OpprettKurs();
                     break;
 
                 case "2":
-                    KursService.MeldPåEllerAvStudent();
+                    MeldPåEllerAvStudent();
                     break;
 
                 case "3":
-                    KursService.SkrivUtKursOgStudentInfo();
+                    SkrivUtKursOgStudentInfo();
                     break;
 
                 case "4":
-                    KursService.SøkKurs();
+                    SøkKurs();
                     break;
 
                 case "5":
-                    bibliotek.SøkBok(bøker);
+                    SøkBok();
                     break;
 
                 case "6":
-                    bibliotek.LånUt();      //må sende bok + låner
+                    Console.Write("Student ID: ");
+                    int studentID = int.Parse(Console.ReadLine());
+                    Student student = Studenter.FirstOrDefault(s => s.StudentID == studentID);
+                    Console.Write("Bok ID: ");
+                    int bokID = int.Parse(Console.ReadLine());
+                    Bok bok = Bøker.FirstOrDefault(b => b.BokID == bokID);
+                    LånBok(bok, student);      
                     break;
 
                 case "7":
-                    bibliotek.Returner();
+                    Returner();
                     break;
 
                 case "8":
-                    bibliotek.RegistrerBok();
+                    RegistrerBok();
                     break;
 
                 case "0":
@@ -69,7 +78,7 @@ public class Program
 
         //---------------KURS-------------------
 
-        void OpprettKurs(KursService allekurs)
+        void OpprettKurs()
         {
             Console.Write("Kode: ");
             string kurskode = Console.ReadLine();
@@ -86,8 +95,32 @@ public class Program
             KursListe.Add(new Kurs(kurskode, kursnavn, studiepoeng, maksAntallPlasser));
         }
 
-       static void MeldPåEllerAvStudent(KursService system)
+
+       static void MeldPåEllerAvStudent()
         {
+            //Console.Write("Student ID: ");
+            //int studentID = int.Parse(Console.ReadLine());
+
+            //Console.Write("Kurs kode: ");
+            //string kurskode = Console.ReadLine();
+
+            //Student student = Studenter.FirstOrDefault(s => s.StudentID == studentID);
+            //Kurs kurs = KursListe.FirstOrDefault(k => k.KursKode == kurskode);
+
+            //if (student != null && kurs != null)
+            //{
+            //    if (kurs.HarLedigPlass())
+            //    {
+            //        kurs.Studenter.Add(student);
+            //        kurs.LeggTilStudent(student);
+            //        Console.WriteLine("Student meldt på.");
+            //    }
+            //    else
+            //    {
+            //        Console.WriteLine("Kurset er fullt.");
+            //    }
+
+            //}
             Console.Write("Student ID: ");
             int studentID = int.Parse(Console.ReadLine());
 
@@ -101,7 +134,8 @@ public class Program
             {
                 if (kurs.HarLedigPlass())
                 {
-                    kurs.Studenter.Add(student);
+                    kurs.LeggTilStudent(student);
+                    //kurs.Studenter.Add(student);
                     Console.WriteLine("Student meldt på.");
                 }
                 else
@@ -112,7 +146,7 @@ public class Program
             }
         }
 
-        static void PrintKurs()
+        static void SkrivUtKursOgStudentInfo()
         {
             foreach (var kurs in KursListe)
             {
@@ -120,12 +154,12 @@ public class Program
 
                 foreach (var student in kurs.Studenter)
                 {
-                    Console.WriteLine("  " + student.Navn);
+                    Console.WriteLine(student.Navn);
                 }
             }
         }
 
-        void SøkKurs()
+        static void SøkKurs()
         {
             Console.Write("Søk: ");
             string søk = Console.ReadLine();
@@ -165,7 +199,7 @@ public class Program
         {
             Console.Write("Søk tittel: ");
             string søk = Console.ReadLine();
-            bibliotek.SøkBok(søkBok)
+            //SøkBok(søkBok);
 
             var resultat = Bøker.Where(b => b.Tittel.Contains(søk, StringComparison.OrdinalIgnoreCase));
 
@@ -177,10 +211,8 @@ public class Program
 
         void LånBok(Bok bok, Bruker bruker)
         {
-            Console.Write("Bok ID: ");
-            int bokID = int.Parse(Console.ReadLine());
-
-            bok = bøker.FirstOrDefault(b => b.BokID == bokID);
+            
+         
 
             if (bok != null && bok.Antall > 0)      
             {
