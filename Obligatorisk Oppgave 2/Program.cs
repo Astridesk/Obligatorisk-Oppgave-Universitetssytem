@@ -3,6 +3,7 @@ using System.Xml.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using Obligatorisk_Oppgave_2;
 using Obligatorisk_Oppgave_2.Menyer;
 
@@ -40,18 +41,23 @@ public class Program
         }
     }
 
-    public static void Main(string[] args) 
+    public static void Main(string[] args)
     {
         TestData();
 
-        Bruker innlogget = SpørOmLoggInn();
-        if (innlogget == null)
+        while (true)
         {
-            Console.WriteLine("Avslutter.");
-            return;
-        }
+            Bruker innlogget = SpørOmLoggInn();
 
-        KjørMeny(innlogget);
+            if (innlogget == null)
+
+            {
+                Console.WriteLine("Avslutter.");
+                break;
+            }
+
+            KjørMeny(innlogget);
+        }
     }
 
     private static void TestData()
@@ -62,7 +68,7 @@ public class Program
         Brukere.Add(s);
 
         //utvekslingsstudent
-        var u = new UtvekslingsStudent("Itachi Uchiha", "itachi.uchiha@uia.no","itauchi","sasuke1", 54321, "University of Konohagakure", "Land of Fire", "høst 2026-vår2027");
+        var u = new UtvekslingsStudent("Itachi Uchiha", "itachi.uchiha@uia.no","itachi","passord", 5432, "University of Konohagakure", "Land of Fire", "høst 2026-vår2027");
         Studenter.Add(u);
         Brukere.Add(u);
 
@@ -74,9 +80,13 @@ public class Program
                                   200, "Bibliotekar", "Bibliotek");
         Brukere.Add(bib);
 
-        Bøker.Add(new Bok(1, "1984", "George Orwell", 1949, 2));
-        Bøker.Add(new Bok(2, "The Silmarillion", "J.R.R. Tolkien", 1977, 1));
+        //Bøker.Add(new Bok(1, "1984", "George Orwell", 1949, 2));
+        //Bøker.Add(new Bok(2, "The Silmarillion", "J.R.R. Tolkien", 1977, 1));
+        bibliotek.RegistrerBok(new Bok(1, "1984", "George Orwell", 1949, 2));
+        bibliotek.RegistrerBok(new Bok(2, "The Silmarillion", "J.R.R. Tolkien", 1977, 1));
+
     }
+
 
     private static Bruker SpørOmLoggInn()
     {
@@ -305,7 +315,9 @@ public class Program
             return;
         }
 
-        var bok = Bøker.FirstOrDefault(b => b.BokID == bokID);
+        //var bok = Bøker.FirstOrDefault(b => b.BokID == bokID);
+        var bok = bibliotek.HentBøker().FirstOrDefault(b => b.BokID == bokID);
+
         if (bok == null)
         {
             Console.WriteLine("Fant ikke bok.");
@@ -327,7 +339,7 @@ public class Program
             return;
         }
 
-        var bok = Bøker.FirstOrDefault(b => b.BokID == bokID);
+        var bok = bibliotek.HentBøker().FirstOrDefault(b => b.BokID == bokID);
         if (bok == null)
         {
             Console.WriteLine("Fant ikke bok.");

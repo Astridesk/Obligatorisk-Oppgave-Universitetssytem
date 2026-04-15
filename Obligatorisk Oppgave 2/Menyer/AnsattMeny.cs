@@ -12,7 +12,7 @@ namespace Obligatorisk_Oppgave_2.Menyer
 
             Console.WriteLine("[1] Opprett kurs");
             Console.WriteLine("[2] Søk på kurs");
-            Console.WriteLine("[3] Meld student til kurs");
+            Console.WriteLine("[3] Meld student på/av kurs");
             Console.WriteLine("[4] Print kurs og deltagere");
             Console.WriteLine("[5] Sett karakter");
             Console.WriteLine("[6] Registrer pensum");

@@ -10,6 +10,8 @@ namespace Obligatorisk_Oppgave_2
     {
         private readonly List<Bok> _bøker = new();
         private readonly List<Bruker> _lånere = new();
+       
+
 
         public List<Lån> AktiveLån { get; } = new();
         public List<Lån> Historikk { get; } = new();
@@ -18,6 +20,10 @@ namespace Obligatorisk_Oppgave_2
         {
             _bøker.Add(bok);
             Console.WriteLine("Boken er registrert i biblioteket.");
+        }
+        public List<Bok> HentBøker()
+        {
+            return _bøker;
         }
 
         // Brukes av menyen
@@ -101,9 +107,10 @@ namespace Obligatorisk_Oppgave_2
 
             foreach (var bok in resultat)
             {
-                Console.WriteLine($"{bok.Tittel} ({bok.Antall} stk)");
-            }
+                Console.WriteLine($"{bok.Tittel} ({bok.Antall} stk tilgjengelig)");
+          }
         }
+
     }
 
 }
