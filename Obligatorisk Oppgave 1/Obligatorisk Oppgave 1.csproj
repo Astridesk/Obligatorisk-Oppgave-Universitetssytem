@@ -10,7 +10,10 @@
 
   <ItemGroup>
     <Compile Remove="ProgramOppg1.cs" />
+    <Compile Remove="Menyer\**" />
 	<Compile Remove="Oppgave1\*.cs" />
+	<EmbeddedResource Remove="Menyer\**" />
+	<None Remove="Menyer\**" />
   </ItemGroup>
 
 </Project>

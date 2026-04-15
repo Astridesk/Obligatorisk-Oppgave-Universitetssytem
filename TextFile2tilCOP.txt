@@ -1,0 +1,1099 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace Obligatorisk_Oppgave_2
+{
+
+    public class Bibliotek
+    {
+        private readonly List<Bok> _bøker = new();
+        private readonly List<Bruker> _lånere = new();
+
+        public List<Lån> AktiveLån { get; } = new();
+        public List<Lån> Historikk { get; } = new();
+
+        public void RegistrerBok(Bok bok)
+        {
+            _bøker.Add(bok);
+            Console.WriteLine("Boken er registrert i biblioteket.");
+        }
+
+        // Brukes av menyen
+        public void RegistrerBokFraMeny()
+        {
+            Console.Write("ID: ");
+            int bokID = int.Parse(Console.ReadLine());
+
+            Console.Write("Tittel: ");
+            string tittel = Console.ReadLine();
+
+            Console.Write("Forfatter: ");
+            string forfatter = Console.ReadLine();
+
+            Console.Write("År: ");
+            int år = int.Parse(Console.ReadLine());
+
+            Console.Write("Antall: ");
+            int antall = int.Parse(Console.ReadLine());
+
+            var bok = new Bok(bokID, tittel, forfatter, år, antall);
+            RegistrerBok(bok);
+        }
+
+        public void RegistrerLåner(Bruker bruker)
+        {
+            if (!_lånere.Contains(bruker))
+                _lånere.Add(bruker);
+        }
+
+        public bool Ledig(Bok bok) => bok.Antall > 0;
+
+        public bool LånUt(Bok bok, Bruker låner)
+        {
+            if (!Ledig(bok)) return false;
+
+            bok.Antall--;
+            var lån = new Lån(låner, bok);
+            AktiveLån.Add(lån);
+            return true;
+        }
+
+        public bool Returner(Bok bok, Bruker bruker)
+        {
+            var lån = AktiveLån
+                .FirstOrDefault(l => l.Bok == bok && l.Låner == bruker && !l.Returnert);
+
+            if (lån == null) return false;
+
+            lån.Returnert = true;
+            lån.ReturDato = DateTime.Now;
+            AktiveLån.Remove(lån);
+            Historikk.Add(lån);
+            bok.Antall++;
+            return true;
+        }
+
+        public void VisAktiveLån()
+        {
+            foreach (var lån in AktiveLån)
+            {
+                Console.WriteLine($"Låner: {lån.Låner.Navn}, Bok: {lån.Bok.Tittel}, Lånedato: {lån.LåneDato}");
+            }
+        }
+
+        public void VisHistorikk()
+        {
+            foreach (var lån in Historikk)
+            {
+                Console.WriteLine($"Låner: {lån.Låner.Navn}, Bok: {lån.Bok.Tittel}, Lånedato: {lån.LåneDato}, Retur: {lån.ReturDato}");
+            }
+        }
+        public void SøkBok()
+        {
+            Console.Write("Søk tittel: ");
+            string søk = Console.ReadLine();
+           
+
+            var resultat = _bøker
+                .Where(b => b.Tittel.Contains(søk, StringComparison.OrdinalIgnoreCase));
+
+            foreach (var bok in resultat)
+            {
+                Console.WriteLine($"{bok.Tittel} ({bok.Antall} stk)");
+            }
+        }
+    }
+
+}
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Obligatorisk_Oppgave_2
+{
+    public class Bok
+    {
+        public int BokID { get; init; }
+        public string Tittel { get; set; }
+        public string Forfatter { get; set; }
+        public int År { get; set; }
+        public int Antall { get; set; }
+
+
+        public Bok(int bokID, string tittel, string forfatter, int år, int antall)
+        {
+            BokID = bokID;
+            Tittel = tittel;
+            Forfatter = forfatter;
+            År = år;
+            Antall = antall;
+
+        }
+
+        public static List<Bok> Bøker()
+        {
+            return new List<Bok>
+            {
+                new Bok(1, "1984", "George Orwell", 1949, 2),
+                new Bok(2, "The Silmarillion", "J.R.R. Tolkien", 1977, 1),
+                new Bok(3, "The Mysterious Affair at Styles", "Agatha Christie", 1920, 2)
+            };
+        }
+
+
+        //legg låning over til biblitek klassen.
+
+        //public bool Ledig()
+        //{
+        //    return Antall > 0;
+        //}
+
+        //public void LånUt()
+        //{
+        //    if (Ledig())
+        //    {
+        //        Antall--;
+        //    }
+
+        //}
+
+        //public void Returner()
+        //{
+        //    Antall++;
+        //}
+        //public string SkrivUtInfo()
+        //{
+        //    return $"BokID: {BokID} \nTittel: {Tittel} \nForfatter: {Forfatter} \nÅr: {År} \nAntall Eksemplarer: {Antall}";
+        //}
+    }
+}
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Obligatorisk_Oppgave_2
+{
+    public class Lån
+    {
+        public Bruker Låner { get; set; }
+        public Bok Bok { get; set; }
+        public DateTime LåneDato { get; init; }
+        public bool Returnert { get; set; }
+        public DateTime? ReturDato { get; set; }
+        public Lån(Bruker låner, Bok bok)
+        {
+            Låner = låner;
+            Bok = bok;
+            LåneDato = DateTime.Now; 
+            Returnert = false;
+        }
+    }
+}
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Obligatorisk_Oppgave_2
+{
+    public class Ansatt : Bruker
+    {
+        public int AnsattID { get; set; }
+        public string Stilling { get; set; }
+        public string Avdeling { get; set; }
+
+        public Ansatt(string navn, string epost, string brukernavn, string passord,
+                  int ansattID, string stilling, string avdeling)
+        {
+            Navn = navn;
+            Epost = epost;
+            Brukernavn = brukernavn;
+            Passord = passord;
+            AnsattID = ansattID;
+            Stilling = stilling;
+            Avdeling = avdeling;
+            Rolle = Rolle.Ansatt;
+        }
+
+        
+    }
+}
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Obligatorisk_Oppgave_2
+{
+    public class Bibliotekar : Ansatt     
+    {
+        public Bibliotekar(string navn, string epost, string brukernavn, string passord,
+                       int ansattID, string stilling, string avdeling)
+        : base(navn, epost, brukernavn, passord, ansattID, stilling, avdeling)
+        {
+            Rolle = Rolle.Bibliotekar;
+        }
+    }
+}
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Obligatorisk_Oppgave_2
+{
+    public enum Rolle
+    {
+        Student,
+        Ansatt,
+        Bibliotekar
+    }
+    public abstract class Bruker
+    {
+
+        //instansvariabler
+        public string Navn { get; set; }       //sett som protected?
+        public string Epost { get; set; }
+        public string Brukernavn { get;  set; }      //brukernavn bli satt sammen av navnet
+        public string Passord {  get; set; }         //sett krav til passordet
+        public Rolle Rolle { get; protected set; }     //rolle for å skille mellom ulike typer brukere, og gi tilgang til forskjellige menyer
+
+    }
+}
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Obligatorisk_Oppgave_2
+{
+    public class Student : Bruker
+    {
+        public int StudentID { get; init; }
+        public Dictionary<Kurs, string> Karakterer { get; } = new();        //med dictionary kan student ha flere kurs og karakterer.
+        public List<Kurs> KursListe { get; } = new();
+
+        public Student(string navn, string epost, string brukernavn, string passord, int studentID)
+        {
+            Navn = navn;
+            Epost = epost;
+            Brukernavn = brukernavn;
+            Passord = passord;
+            StudentID = studentID;
+            Rolle = Rolle.Student;
+        }
+
+        //Default studenter
+
+        
+    }
+}
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Obligatorisk_Oppgave_2
+{
+    public class UtvekslingsStudent : Student
+    {
+        public string HjemUniversitet { get; set; }
+        public string HjemLand { get; set; }
+        public string Periode { get; set; }        //(fra-til)
+
+        public UtvekslingsStudent(
+            string navn,
+            string epost,
+            string brukernavn,
+            string passord,
+            int studentID,
+            string hjemuniversitet,
+            string hjemland,
+            string periode)
+            : base(navn, epost, brukernavn, passord, studentID)
+        {
+            HjemUniversitet = hjemuniversitet;
+            HjemLand = hjemland;
+            Periode = periode;
+        }
+
+        public static List<UtvekslingsStudent> DefaultUtvekslingsStudenter()
+        {
+            return new List<UtvekslingsStudent>
+                {
+                    new UtvekslingsStudent(
+                        "Itachi Uchiha",
+                        "itachi.uchiha@uia.no",
+                        "itachi.uchiha",
+                        "defaultPass",
+                        54321,
+                        "University of Konohagakure",
+                        "Land of Fire",
+                        "høst 2026-vår2027")
+                };
+        }
+    }
+}
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Obligatorisk_Oppgave_2.Menyer
+{
+    public class AnsattMeny : MenyBase
+    {
+        public override void Vis()
+        {
+            Console.WriteLine("\n--- Ansattmeny ---");
+
+            Console.WriteLine("[1] Opprett kurs");
+            Console.WriteLine("[2] Søk på kurs");
+            Console.WriteLine("[3] Meld student til kurs");
+            Console.WriteLine("[4] Print kurs og deltagere");
+            Console.WriteLine("[5] Sett karakter");
+            Console.WriteLine("[6] Registrer pensum");
+
+            Console.WriteLine("[7] Søk på bok");
+            Console.WriteLine("[8] Lån bok");
+            Console.WriteLine("[9] Returner bok");
+
+            Console.WriteLine("[0] Logg ut");
+
+        }
+
+        public override bool BehandleValg(string valg, Bruker innlogget)
+        {
+            switch (valg)
+            {
+                case "1":
+                    Program.OpprettKurs();
+                    break;
+                case "2":
+                    Kurs.SøkKurs();
+                    break;
+                case "3":
+                    Program.MeldPåEllerAvStudent();
+                    break;
+                case "4":
+                    Kurs.SkrivUtKursOgStudentInfo();
+                    break;
+                case "5":
+                    Program.SettKarakter();
+                    break;
+                case "6":
+                    Program.RegistrerPensum();
+                    break;
+                case "7":
+                    Program.bibliotek.SøkBok();
+                    break;
+                case "8":
+                    Program.LånBok(innlogget);
+                    break;
+                case "9":
+                    Program.Returner(innlogget);
+                    break;
+                case "0":
+                    return false;
+                default:
+                    Console.WriteLine("Ugyldig valg.");
+                    break;
+            }
+            return true;
+        }
+
+        
+
+    }
+}
+using Obligatorisk_Oppgave_2;
+
+public class BibliotekarMeny : MenyBase
+{
+    public override void Vis()
+    {
+        Console.WriteLine("\n--- Bibliotekarmeny ---");
+        Console.WriteLine("[1] Søk på bok");
+        Console.WriteLine("[2] Lån bok");
+        Console.WriteLine("[3] Returner bok");
+        Console.WriteLine("[4] Registrer bok");
+        Console.WriteLine("[5] Vis aktive lån");
+        Console.WriteLine("[6] Vis historikk");
+        Console.WriteLine("[0] Logg ut");
+    }
+
+    public override bool BehandleValg(string valg, Bruker innlogget)
+    {
+        switch (valg)
+        {
+            case "1":
+                Program.bibliotek.SøkBok();
+                break;
+            case "2":
+                Program.LånBok(innlogget);
+                break;
+            case "3":
+                Program.Returner(innlogget);
+                break;
+            case "4":
+                Program.bibliotek.RegistrerBokFraMeny();
+                break;
+            case "5":
+                Program.bibliotek.VisAktiveLån();
+                break;
+            case "6":
+                Program.bibliotek.VisHistorikk();
+                break;
+            case "0":
+                return false;
+            default:
+                Console.WriteLine("Ugyldig valg.");
+                break;
+        }
+        return true;
+    }
+}
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Obligatorisk_Oppgave_2
+{
+    public abstract class MenyBase
+
+    {
+        public abstract void Vis();
+        public abstract bool BehandleValg(string valg, Bruker innlogget);
+    }
+}
+
+
+//gammel meny, beholdes for referanse:
+
+//public void VisMeny()
+//{
+//    Console.WriteLine("\n--- Universitetssystem ---");
+//    Console.WriteLine("[1] Opprett kurs");
+//    Console.WriteLine("[2] Meld student til kurs");
+//    Console.WriteLine("[3] Print kurs og deltagere");
+//    Console.WriteLine("[4] Søk på kurs");
+//    Console.WriteLine("[5] Søk på bok");
+//    Console.WriteLine("[6] Lån bok");
+//    Console.WriteLine("[7] Returner bok");
+//    Console.WriteLine("[8] Registrer bok");
+//    Console.WriteLine("[0] Avslutt");
+//}using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Obligatorisk_Oppgave_2.Menyer
+{
+    public class StudentMeny : MenyBase
+    {
+        public override void Vis()
+        {
+            Console.WriteLine("\n--- Studentmeny ---");
+
+            Console.WriteLine("[1] Søk på kurs");
+            Console.WriteLine("[2] Meld deg på/av kurs");          //kan den melde seg av?
+            Console.WriteLine("[3] Se oppmeldte kurs");
+            Console.WriteLine("[4] Se karakterer");
+
+            Console.WriteLine("[5] Søk på bok");
+            Console.WriteLine("[6] Lån bok");
+            Console.WriteLine("[7] Returner bok");
+
+            Console.WriteLine("[0] Logg ut");
+        }
+
+        public override bool BehandleValg(string valg, Bruker innlogget)
+        {
+            var student = innlogget as Student;
+            if (student == null)
+            {
+                Console.WriteLine("Feil: ikke student.");
+                return false;
+            }
+
+            switch (valg)
+            {
+                case "1":
+                    Kurs.SøkKurs();
+                    break;
+                case "2":
+                    Program.MeldPåEllerAvStudent(student);
+                    break;
+                case "3":
+                    Kurs.VisStudentKurs(student);
+                    break;
+                case "4":
+                    Kurs.VisStudentKarakterer(student);
+                    break;
+                case "5":
+                    Program.bibliotek.SøkBok();
+                    break;
+                case "6":
+                    Program.LånBok(student);
+                    break;
+                case "7":
+                    Program.Returner(student);
+                    break;
+                case "0":
+                    return false;
+                default:
+                    Console.WriteLine("Ugyldig valg.");
+                    break;
+            }
+            return true;
+        }
+    }
+
+}
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq; // Add this at the top with other using statements
+
+namespace Obligatorisk_Oppgave_2
+{
+    //Inneholder Kurs-klassen og defaultkurs.
+    //
+    public class Kurs
+    {
+        public string KursKode { get; set; }
+        public string KursNavn { get; set; }
+        public int Studiepoeng { get; set; }
+        public int MaksAntallPlasser { get; set; }
+
+        public List<Student> Studenter { get; private set; } = new();
+        public List<Bok> Pensum { get; set; } = new();
+        public Dictionary<Student, string> Karakterer { get; set; } = new();
+
+
+
+
+        public Kurs(string kurskode, string kursnavn, int studiepoeng, int maksAntallPlasser)
+        {
+            KursKode = kurskode;
+            KursNavn = kursnavn;
+            Studiepoeng = studiepoeng;
+            MaksAntallPlasser = maksAntallPlasser;
+
+        }
+
+        public static List<Kurs> KursListe()      //må ha antall ledige plasser
+        {
+            return new List<Kurs>
+            {
+                new Kurs("IS-110", "Objektorientert programmering", 10, 30),
+                new Kurs("IS-105", "Datasystemer og systemarkitektur", 10, 30)
+            };
+        }
+
+
+
+        public bool HarLedigPlass()
+        {
+            return Studenter.Count < MaksAntallPlasser;
+        }
+
+        public bool LeggTilStudent(Student student)
+        {
+            if (!HarLedigPlass()) return false;
+            if (Studenter.Contains(student)) return false;
+
+            Studenter.Add(student);
+            student.KursListe.Add(this);
+            return true;
+        }
+
+        public bool MeldAvStudent(Student student)
+        {
+            if (!Studenter.Contains(student)) return false;
+            Studenter.Remove(student);
+            student.KursListe.Remove(this);
+            return true;
+        }
+
+        public static void SøkKurs()
+        {
+            Console.Write("Søk: ");
+            string søk = Console.ReadLine();
+
+            var resultat = KursListe()
+                .Where(k => k.KursKode.Contains(søk) || k.KursNavn.Contains(søk));
+
+            foreach (var kurs in resultat)
+            {
+                Console.WriteLine(kurs.KursKode + " - " + kurs.KursNavn);
+            }
+        }
+        public static void SkrivUtKursOgStudentInfo()
+        {
+            foreach (var kurs in KursListe())
+            {
+                Console.WriteLine(kurs.KursKode + " - " + kurs.KursNavn);
+
+                foreach (var student in kurs.Studenter)
+                {
+                    Console.WriteLine(student.Navn);
+                }
+            }
+        }
+        public static void VisStudentKurs(Student student)
+        {
+            if (student.KursListe.Count == 0)
+            {
+                Console.WriteLine("Du er ikke meldt opp i noen kurs.");
+                return;
+            }
+
+            Console.WriteLine("\n--- Dine kurs ---");
+            foreach (var kurs in student.KursListe)
+            {
+                Console.WriteLine($"{kurs.KursKode} - {kurs.KursNavn}");
+            }
+        }
+
+        public static void VisStudentKarakterer(Student student)
+        {
+            if (student.Karakterer.Count == 0)
+            {
+                Console.WriteLine("Du har ingen registrerte karakterer.");
+                return;
+            }
+
+            Console.WriteLine("\n--- Dine karakterer ---");
+            foreach (var entry in student.Karakterer)
+            {
+                Kurs kurs = entry.Key;
+                string karakter = entry.Value;
+
+                Console.WriteLine($"{kurs.KursKode} - {kurs.KursNavn}: {karakter}");
+            }
+        }
+        public static void RegistrerPensum(List<Kurs> kursListe, List<Bok> bøker)
+        {
+            Console.Write("Kurskode: ");
+            string kode = Console.ReadLine();
+
+            var kurs = kursListe.FirstOrDefault(k => k.KursKode == kode);
+            if (kurs == null)
+            {
+                Console.WriteLine("Fant ikke kurs.");
+                return;
+            }
+
+            Console.Write("Bok ID: ");
+            if (!int.TryParse(Console.ReadLine(), out int bokID))
+            {
+                Console.WriteLine("Ugyldig bok ID.");
+                return;
+            }
+
+            var bok = bøker.FirstOrDefault(b => b.BokID == bokID);
+            if (bok == null)
+            {
+                Console.WriteLine("Fant ikke bok.");
+                return;
+            }
+
+            if (!kurs.Pensum.Contains(bok))
+            {
+                kurs.Pensum.Add(bok);
+                Console.WriteLine("Bok lagt til som pensum.");
+            }
+            else
+            {
+                Console.WriteLine("Boken er allerede registrert som pensum.");
+            }
+        }
+        public static void SettKarakter(List<Kurs> kursListe, List<Student> studenter)
+        {
+            Console.Write("Kurskode: ");
+            string kode = Console.ReadLine();
+
+            var kurs = kursListe.FirstOrDefault(k => k.KursKode == kode);
+            if (kurs == null)
+            {
+                Console.WriteLine("Fant ikke kurs.");
+                return;
+            }
+
+            Console.Write("Student ID: ");
+            if (!int.TryParse(Console.ReadLine(), out int studentID))
+            {
+                Console.WriteLine("Ugyldig ID.");
+                return;
+            }
+
+            var student = studenter.FirstOrDefault(s => s.StudentID == studentID);
+            if (student == null)
+            {
+                Console.WriteLine("Fant ikke student.");
+                return;
+            }
+
+            Console.Write("Karakter: ");
+            string karakter = Console.ReadLine();
+
+            kurs.Karakterer[student] = karakter;
+            student.Karakterer[kurs] = karakter;
+
+            Console.WriteLine("Karakter registrert.");
+        }
+
+
+
+    }
+}
+// See https://aka.ms/new-console-template for more information
+using System.Xml.Serialization;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Obligatorisk_Oppgave_2;
+using Obligatorisk_Oppgave_2.Menyer;
+
+public class Program
+{
+    private static readonly List<Bruker> Brukere = new();
+    private static readonly List<Student> Studenter = new();
+    private static readonly List<Kurs> KursListe = new();
+    private static readonly List<Bok> Bøker = new();
+    public static Bibliotek bibliotek = new();
+
+    private static void KjørMeny(Bruker innlogget)
+    {
+        MenyBase meny = innlogget.Rolle switch
+        {
+            Rolle.Student => new StudentMeny(),
+            Rolle.Ansatt => new AnsattMeny(),
+            Rolle.Bibliotekar => new BibliotekarMeny(),
+            _ => null
+        };
+
+        if (meny == null)
+        {
+            Console.WriteLine("Ukjent rolle.");
+            return;
+        }
+
+        bool kjører = true;
+        while (kjører)
+        {
+            meny.Vis();
+            Console.Write("Valg: ");
+            string valg = Console.ReadLine();
+            kjører = meny.BehandleValg(valg, innlogget);
+        }
+    }
+
+    public static void Main(string[] args) 
+    {
+        TestData();
+
+        Bruker innlogget = SpørOmLoggInn();
+        if (innlogget == null)
+        {
+            Console.WriteLine("Avslutter.");
+            return;
+        }
+
+        KjørMeny(innlogget);
+    }
+
+    private static void TestData()
+    {
+        // Eksempeldata
+        var s = new Student("Ola Nordmann", "ola@uia.no", "ola", "passord", 123);
+        Studenter.Add(s);
+        Brukere.Add(s);
+
+        //utvekslingsstudent
+        var u = new UtvekslingsStudent("Itachi Uchiha", "itachi.uchiha@uia.no","itauchi","sasuke1", 54321, "University of Konohagakure", "Land of Fire", "høst 2026-vår2027");
+        Studenter.Add(u);
+        Brukere.Add(u);
+
+        var ansatt = new Ansatt("Kinger", "kinger@uia.no", "kinger", "passord",
+                                120, "Professor", "Institutt for informasjonssystemer");
+        Brukere.Add(ansatt);
+
+        var bib = new Bibliotekar("Bente", "bente@uia.no", "bente", "passord",
+                                  200, "Bibliotekar", "Bibliotek");
+        Brukere.Add(bib);
+
+        Bøker.Add(new Bok(1, "1984", "George Orwell", 1949, 2));
+        Bøker.Add(new Bok(2, "The Silmarillion", "J.R.R. Tolkien", 1977, 1));
+    }
+
+    private static Bruker SpørOmLoggInn()
+    {
+        while (true)
+        {
+            Console.WriteLine("Har du bruker?");
+            Console.WriteLine("[1] Logg inn");
+            Console.WriteLine("[2] Registrer ny");
+            Console.WriteLine("[0] Avslutt");
+
+            string valg = Console.ReadLine();
+
+            switch (valg)
+            {
+                case "1":
+                    return LoggInn();
+                case "2":
+                    return RegistrerNyBruker();
+                case "0":
+                    return null;
+                default:
+                    Console.WriteLine("Ugyldig valg.");
+                    break;
+            }
+        }
+    }
+
+    private static Bruker LoggInn()
+    {
+        Console.Write("Brukernavn: ");
+        string brukernavn = Console.ReadLine();
+        Console.Write("Passord: ");
+        string passord = Console.ReadLine();
+
+        var bruker = Brukere.FirstOrDefault(b =>
+            b.Brukernavn == brukernavn && b.Passord == passord);
+
+        if (bruker == null)
+        {
+            Console.WriteLine("Feil brukernavn eller passord.");
+            return null;
+        }
+
+        return bruker;
+    }
+
+    private static Bruker RegistrerNyBruker()
+    {
+        Console.Write("Velg brukernavn: ");
+        string brukernavn = Console.ReadLine();
+
+        if (Brukere.Any(b => b.Brukernavn == brukernavn))
+        {
+            Console.WriteLine("Brukernavn er allerede i bruk.");
+            return null;
+        }
+
+        Console.Write("Velg passord: ");
+        string passord = Console.ReadLine();
+
+        Console.WriteLine("Velg rolle: [1] Student [2] Faglærer [3] Bibliotekansatt");
+        string rolleValg = Console.ReadLine();
+
+        Bruker ny = rolleValg switch
+        {
+            "1" => RegistrerStudent(brukernavn, passord),
+            "2" => RegistrerAnsatt(brukernavn, passord),
+            "3" => RegistrerBibliotekar(brukernavn, passord),
+            _ => null
+        };
+
+        if (ny != null)
+        {
+            Brukere.Add(ny);
+            if (ny is Student s) Studenter.Add(s);
+            Console.WriteLine("Bruker registrert.");
+        }
+
+        return ny;
+    }
+
+    private static Student RegistrerStudent(string brukernavn, string passord)
+    {
+        Console.Write("Navn: ");
+        string navn = Console.ReadLine();
+        Console.Write("E-post: ");
+        string epost = Console.ReadLine();
+        Console.Write("StudentID: ");
+        if (!int.TryParse(Console.ReadLine(), out int id))
+        {
+            Console.WriteLine("Ugyldig ID.");
+            return null;
+        }
+
+        return new Student(navn, epost, brukernavn, passord, id);
+    }
+
+    private static Ansatt RegistrerAnsatt(string brukernavn, string passord)
+    {
+        Console.Write("Navn: ");
+        string navn = Console.ReadLine();
+        Console.Write("E-post: ");
+        string epost = Console.ReadLine();
+        Console.Write("AnsattID: ");
+        if (!int.TryParse(Console.ReadLine(), out int id))
+        {
+            Console.WriteLine("Ugyldig ID.");
+            return null;
+        }
+        Console.Write("Stilling: ");
+        string stilling = Console.ReadLine();
+        Console.Write("Avdeling: ");
+        string avdeling = Console.ReadLine();
+
+        return new Ansatt(navn, epost, brukernavn, passord, id, stilling, avdeling);
+    }
+
+    private static Bibliotekar RegistrerBibliotekar(string brukernavn, string passord)
+    {
+        Console.Write("Navn: ");
+        string navn = Console.ReadLine();
+        Console.Write("E-post: ");
+        string epost = Console.ReadLine();
+        Console.Write("AnsattID: ");
+        if (!int.TryParse(Console.ReadLine(), out int id))
+        {
+            Console.WriteLine("Ugyldig ID.");
+            return null;
+        }
+        Console.Write("Stilling: ");
+        string stilling = Console.ReadLine();
+        Console.Write("Avdeling: ");
+        string avdeling = Console.ReadLine();
+
+        return new Bibliotekar(navn, epost, brukernavn, passord, id, stilling, avdeling);
+    }
+
+    public static void OpprettKurs()
+    {
+        Console.Write("Kode: ");
+        string kurskode = Console.ReadLine();
+        if (KursListe.Any(k => k.KursKode == kurskode))
+        {
+            Console.WriteLine("Kurskode finnes allerede.");
+            return;
+        }
+
+        Console.Write("Navn: ");
+        string kursnavn = Console.ReadLine();
+        if (KursListe.Any(k => k.KursNavn == kursnavn))
+        {
+            Console.WriteLine("Kursnavn finnes allerede.");
+            return;
+        }
+
+        Console.Write("Studiepoeng: ");
+        if (!int.TryParse(Console.ReadLine(), out int studiepoeng))
+        {
+            Console.WriteLine("Ugyldig tall.");
+            return;
+        }
+
+        Console.Write("Maks plasser: ");
+        if (!int.TryParse(Console.ReadLine(), out int maksAntallPlasser))
+        {
+            Console.WriteLine("Ugyldig tall.");
+            return;
+        }
+
+        KursListe.Add(new Kurs(kurskode, kursnavn, studiepoeng, maksAntallPlasser));
+        Console.WriteLine("Kurs opprettet.");
+    }
+
+    public static void MeldPåEllerAvStudent(Student student = null)
+    {
+        if (student == null)
+        {
+            Console.Write("StudentID: ");
+            if (!int.TryParse(Console.ReadLine(), out int id))
+            {
+                Console.WriteLine("Ugyldig ID.");
+                return;
+            }
+            student = Studenter.FirstOrDefault(s => s.StudentID == id);
+            if (student == null)
+            {
+                Console.WriteLine("Fant ikke student.");
+                return;
+            }
+        }
+
+        Console.Write("Kurskode: ");
+        string kode = Console.ReadLine();
+        var kurs = KursListe.FirstOrDefault(k => k.KursKode == kode);
+        if (kurs == null)
+        {
+            Console.WriteLine("Fant ikke kurs.");
+            return;
+        }
+
+        Console.WriteLine("[1] Meld på  [2] Meld av");
+        string valg = Console.ReadLine();
+
+        if (valg == "1")
+        {
+            if (kurs.LeggTilStudent(student))
+                Console.WriteLine("Student meldt på.");
+            else
+                Console.WriteLine("Kunne ikke melde på (fullt eller allerede påmeldt).");
+        }
+        else if (valg == "2")
+        {
+            if (kurs.MeldAvStudent(student))
+                Console.WriteLine("Student meldt av.");
+            else
+                Console.WriteLine("Student var ikke påmeldt.");
+        }
+    }
+
+    public static void LånBok(Bruker låner)
+    {
+        Console.Write("BokID: ");
+        if (!int.TryParse(Console.ReadLine(), out int bokID))
+        {
+            Console.WriteLine("Ugyldig ID.");
+            return;
+        }
+
+        var bok = Bøker.FirstOrDefault(b => b.BokID == bokID);
+        if (bok == null)
+        {
+            Console.WriteLine("Fant ikke bok.");
+            return;
+        }
+
+        if (bibliotek.LånUt(bok, låner))
+            Console.WriteLine("Bok lånt ut.");
+        else
+            Console.WriteLine("Ingen eksemplarer tilgjengelig.");
+    }
+
+    public static void Returner(Bruker låner)
+    {
+        Console.Write("BokID: ");
+        if (!int.TryParse(Console.ReadLine(), out int bokID))
+        {
+            Console.WriteLine("Ugyldig ID.");
+            return;
+        }
+
+        var bok = Bøker.FirstOrDefault(b => b.BokID == bokID);
+        if (bok == null)
+        {
+            Console.WriteLine("Fant ikke bok.");
+            return;
+        }
+
+        if (bibliotek.Returner(bok, låner))
+            Console.WriteLine("Bok returnert.");
+        else
+            Console.WriteLine("Fant ikke aktivt lån for denne boken og brukeren.");
+    }
+    public static void RegistrerPensum()
+    {
+        Kurs.RegistrerPensum(KursListe, Bøker);
+    }
+
+    public static void SettKarakter()
+    {
+        Kurs.SettKarakter(KursListe, Studenter);
+    }
+
+}

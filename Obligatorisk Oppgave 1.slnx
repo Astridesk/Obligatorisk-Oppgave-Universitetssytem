@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="Obligatorisk Oppgave 1/Obligatorisk Oppgave 1.csproj" />
   <Project Path="Obligatorisk Oppgave 2/Obligatorisk Oppgave 2.csproj" Id="7f638ae0-402d-40e3-8bcb-7068616aa49e" />
+  <Project Path="Obligatorisk_Oppgave_2.Tests/Obligatorisk_Oppgave_2.Tests.csproj" Id="7916a0d1-8ac3-4e20-9440-ab6f46c18228" />
 </Solution>
